@@ -2,7 +2,7 @@ class TicTacToe
   def initialize(player_one, player_two)
     @players = Hash.new()
     @board = []
-    @move_count = 0
+    @winner = nil
 
     @player_one = player_one
     @player_two = player_two
@@ -11,6 +11,7 @@ class TicTacToe
       player_two => "X"
     }
 
+    # initialize board
     3.times do
       col = []
       3.times { |i| col.push("-") }
@@ -20,6 +21,8 @@ class TicTacToe
   end
 
   def play
+    i = 0
+
     display_board
 
     loop do
@@ -30,7 +33,8 @@ class TicTacToe
       end
 
       display_board
-      break if has_winner?
+      i += 1
+      break if game_over?
     end
   end
 
@@ -45,41 +49,46 @@ class TicTacToe
   end
 
   def update_board(row, column, mark)
-    if @board[row][column] == "-"
-      @board[row][column] = mark
-      # return 1?
-    else
-      puts "Update board failed!"
-      # return nil?
-    end
+    @board[row][column] = mark
   end
 
   def make_move(player)
     row, column = 0, 0
-    puts "Enter move for #{player}: "
-    move = gets.chomp.to_i
 
-    # include error handling for player move
-    case move
-    when 1..3
-      row = 0
-      column = move - 1  
-    when 4..6
-      row = 1
-      column = move % 4
-    when 7..9
-      row = 2
-      column = move % 7
-    else
-      # error message/handling here
-      # loop user to input choice again?
+    loop do
+      puts "Enter move for #{player}: "
+      move = gets.chomp.to_i
+
+      # include error handling for player move
+      case move
+      when 1..3
+        row = 0
+        column = move - 1  
+      when 4..6
+        row = 1
+        column = move % 4
+      when 7..9
+        row = 2
+        column = move % 7
+      else
+        # error message/handling here
+        # loop user to input choice again?
+        puts "Sorry, your move is incorrect. Please try again."
+        next
+      end
+
+      unless @board[row][column] == "-"
+        puts "Oops. That move is already taken. Please try again."
+      else
+        # accept user move if not yet taken/filled
+        break
+      end
     end
 
-    # loop to get input if update_board is nil?
     update_board(row, column, @players[player])
   end
 
-  def has_winner?
+  def game_over?
     # check horizontal patterns
     for row in 0..2
       unless @board[row][0] == "-"
