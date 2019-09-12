@@ -34,7 +34,16 @@ class TicTacToe
 
       display_board
       i += 1
-      break if game_over?
+
+      break if game_over?(i)
+    end
+  end
+
+  def winner
+    if @winner.nil?
+      "Nobody"
+    else
+      @winner
     end
   end
 
@@ -88,12 +97,13 @@ class TicTacToe
     update_board(row, column, @players[player])
   end
 
-  def game_over?
+  def game_over?(move_count)
     # check horizontal patterns
     for row in 0..2
       unless @board[row][0] == "-"
         if @board[row][0] == @board[row][1] &&
            @board[row][1] == @board[row][2]
+          @winner = @players.key(@board[row][0])
           return true
         else
           next
@@ -108,6 +118,7 @@ class TicTacToe
       unless @board[0][column] == "-"
         if @board[0][column] == @board[1][column] &&
            @board[1][column] == @board[2][column]
+          @winner = @players.key(@board[0][column])
           return true
         else
           next
@@ -118,19 +129,24 @@ class TicTacToe
     end
 
     # check diagonal patterns
-      if @board[0][0] != "-"
-        if @board[0][0] == @board[1][1] &&
-           @board[1][1] == @board[2][2]
-          return true
-        end
+    if @board[0][0] != "-"
+      if @board[0][0] == @board[1][1] &&
+         @board[1][1] == @board[2][2]
+        @winner = @players.key(@board[0][0])
+        return true
       end
+    end
 
-      if @board[2][0] != "-"
-        if @board[2][0] == @board[1][1] &&
-           @board[1][1] == @board[0][2]
-          return true 
-        end
+    if @board[2][0] != "-"
+      if @board[2][0] == @board[1][1] &&
+         @board[1][1] == @board[0][2]
+        @winner = @players.key(@board[2][0])
+        return true 
       end
+    end
+
+    # game over if no winning patterns after 8 moves
+    return true if move_count == 8
 
     false
   end
@@ -140,3 +156,4 @@ end
 # sample usage
 game = TicTacToe.new("Lou", "Tine")
 game.play
+puts "WINNER: #{game.winner}!"
