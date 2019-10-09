@@ -32,7 +32,6 @@ class MasterMind
   end
 
   def over?
-    # pattern_cracked? || attempts == 0
     if pattern_cracked?
       @winner = MasterMind::CODEBREAKER
       true
@@ -41,7 +40,6 @@ class MasterMind
       true
     else
       puts "Remaining attempts: #{attempts}"
-
       false
     end
   end
