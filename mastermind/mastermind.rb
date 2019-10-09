@@ -53,7 +53,7 @@ class MasterMind
 
   def pattern_cracked?
     if guess == pattern
-      @winner = CODEBREAKER
+      @winner = MasterMind::CODEBREAKER
       true 
     else
       false
@@ -72,4 +72,6 @@ until game.over?
   end
 end
 
+puts
+puts "GAME OVER!"
 puts "Winner: #{game.winner}"
