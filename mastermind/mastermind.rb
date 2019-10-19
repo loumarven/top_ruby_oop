@@ -4,14 +4,16 @@ class MasterMind
   CODE_PEGS_COLORS = ["Blank", "Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
   MAX_ATTEMPTS = 12
 
-  attr_accessor :player_name, :attempts
+  attr_accessor :player_name
   attr_reader :player_role, :winner
 
   def initialize(player_name, player_role, attempts)
     @player_name = player_name
     @player_role = player_role
-    @attempts = attempts
+    self.attempts = attempts
     self.pattern = []
+    @feedback = []
+    @feedbacks = []
   end
 
   def make_pattern
@@ -23,6 +25,7 @@ class MasterMind
     if player_role == MasterMind::CODEMAKER
       pattern
     else
+      puts "PATTERN: #{pattern}" # debug
       nil # do not expose pattern to CODEBREAKER
     end
   end
@@ -42,20 +45,41 @@ class MasterMind
       guess.push(MasterMind::CODE_PEGS_COLORS[index])
     end
 
-    self.attempts = self.attempts - 1
+    self.attempts = attempts - 1
     guess
   end
 
   def give_feedback
-    #TODO: algorithm
+    #TODO: test/check algorithm
+    self.feedback = []
+
+    guess.each_with_index do |color, index|
+      if color == pattern[index]
+        feedback.push("Black")
+      else
+        position = pattern.index(color)
+
+        if position.nil? || # guess color not in pattern
+           guess.count(color) > pattern.count(color) # guessed the same color more than the actual times it is in the pattern
+          feedback.push("Blank")
+        else # correct color, wrong position
+          feedback.push("White")
+        end
+      end
+    end
+
+    feedbacks.push(feedback)
+    feedback
   end
 
   def over?
     if pattern_cracked?
       @winner = MasterMind::CODEBREAKER
+      puts "PATTERN: #{pattern}"
       true
     elsif attempts == 0
       @winner = MasterMind::CODEMAKER
+      puts "PATTERN: #{pattern}"
       true
     else
       puts
@@ -69,7 +93,7 @@ class MasterMind
   end
 
   private
-  attr_accessor :pattern, :guess
+  attr_accessor :pattern, :attempts, :guess, :feedback, :feedbacks
 
   def pattern_cracked?
     if guess == pattern
@@ -94,8 +118,11 @@ game = MasterMind.new("Lou", MasterMind::CODEBREAKER, MasterMind::MAX_ATTEMPTS)
 puts game.make_pattern
 
 until game.over?
-  puts game.guess_pattern
-  game.give_feedback
+  print game.guess_pattern
+  puts
+  puts "--"
+  print game.give_feedback
+  puts
 end
 
 puts
