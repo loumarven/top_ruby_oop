@@ -12,8 +12,8 @@ class MasterMind
     @player_role = player_role
     self.attempts = attempts
     self.pattern = []
-    @feedback = []
-    @feedbacks = []
+    self.feedback = []
+    self.feedbacks = []
   end
 
   def make_pattern
@@ -50,20 +50,32 @@ class MasterMind
   end
 
   def give_feedback
-    #TODO: test/check algorithm
     self.feedback = []
+    colors_state = []
 
+    4.times { |i| feedback.push(nil) }
+
+    pattern.each do |color|
+      colors_state.push([color, -1])
+    end
+
+    # check for exact matches first
     guess.each_with_index do |color, index|
       if color == pattern[index]
-        feedback.push("Black")
-      else
-        position = pattern.index(color)
+        feedback[index] = "Black"
+        colors_state[index][1] = 0
+      end
+    end
 
-        if position.nil? || # guess color not in pattern
-           guess.count(color) > pattern.count(color) # guessed the same color more than the actual times it is in the pattern
-          feedback.push("Blank")
-        else # correct color, wrong position
-          feedback.push("White")
+    # now set the whites and blanks ("-")
+    feedback.each_with_index do |status, index|
+      if status.nil? # meaning, no feedback yet for the guess
+        match = colors_state.index([guess[index], -1])
+        if match
+          feedback[index] = "White"
+          colors_state[match][1] = 0
+        else
+          feedback[index] = "-"
         end
       end
     end
@@ -75,11 +87,9 @@ class MasterMind
   def over?
     if pattern_cracked?
       @winner = MasterMind::CODEBREAKER
-      puts "PATTERN: #{pattern}"
       true
     elsif attempts == 0
       @winner = MasterMind::CODEMAKER
-      puts "PATTERN: #{pattern}"
       true
     else
       puts
