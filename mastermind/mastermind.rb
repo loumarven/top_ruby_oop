@@ -12,8 +12,13 @@ class MasterMind
     @player_role = player_role
     self.attempts = attempts
     self.pattern = []
+    self.guess = nil
     self.feedback = []
-    self.feedbacks = []
+    self.g_count = 0
+    self.f_count = 0
+
+    self.guesses = Array.new(attempts, Array.new(4, ""))
+    self.feedbacks = Array.new(attempts, Array.new(4, ""))
   end
 
   def make_pattern
@@ -25,35 +30,66 @@ class MasterMind
     if player_role == MasterMind::CODEMAKER
       pattern
     else
-      puts "PATTERN: #{pattern}" # debug
       nil # do not expose pattern to CODEBREAKER
+    end
+  end
+
+  def display_board
+    system("clear")
+
+    lwidth = 78
+    puts "#{'MASTERMIND GAME'.center(lwidth)}"
+    puts
+
+    puts "#{'GUESSES'.center(29)}"\
+          "#{'FEEDBACKS'.rjust(39)}"
+    puts
+
+    11.downto(0) do |index|
+      4.times { |color| print "|#{guesses[index][color].center(6)}" }
+      print "|"
+      print "                    "
+      4.times { |color| print "|#{feedbacks[index][color].center(6)}" }
+      puts "|"
     end
   end
 
   def guess_pattern
     self.guess = []
+    input_guess = ""
 
     puts
     display_colors
 
-    # TODO: loop guess input until all inputs are valid and within range
-    print "Enter your guess (input numbers corresponding to your guess): "
-    tmp_guess = gets.chomp.split('') # string of indexes
+    loop do
+      print "Enter your guess (input numbers corresponding to your guess): "
+      input_guess = gets.chomp.split('') # string of indexes
 
-    tmp_guess.each do |char|
+      if input_guess.length != 4
+        puts "Error! Guess 4 colors only."
+        puts "Try again!"
+        next
+      else
+        break
+      end
+    end
+
+    # TODO: accept integers between 0 and 6 only
+    input_guess.each do |char|
       index = char.to_i
       guess.push(MasterMind::CODE_PEGS_COLORS[index])
     end
 
     self.attempts = attempts - 1
+
+    guesses[g_count] = guess
+    self.g_count = g_count + 1
     guess
   end
 
   def give_feedback
-    self.feedback = []
+    self.feedback = Array.new(4, nil)
     colors_state = []
-
-    4.times { |i| feedback.push(nil) }
 
     pattern.each do |color|
       colors_state.push([color, -1])
@@ -80,20 +116,20 @@ class MasterMind
       end
     end
 
-    feedbacks.push(feedback)
+    feedbacks[f_count] = feedback
+    self.f_count = f_count + 1
     feedback
   end
 
   def over?
     if pattern_cracked?
       @winner = MasterMind::CODEBREAKER
+      puts "PATTERN: #{pattern}"
       true
     elsif attempts == 0
       @winner = MasterMind::CODEMAKER
       true
     else
-      puts
-      puts "Remaining attempts: #{attempts}"
       false
     end
   end
@@ -103,7 +139,7 @@ class MasterMind
   end
 
   private
-  attr_accessor :pattern, :attempts, :guess, :feedback, :feedbacks
+  attr_accessor :pattern, :attempts, :guess, :guesses, :feedback, :feedbacks, :g_count, :f_count
 
   def pattern_cracked?
     if guess == pattern
@@ -128,13 +164,10 @@ game = MasterMind.new("Lou", MasterMind::CODEBREAKER, MasterMind::MAX_ATTEMPTS)
 puts game.make_pattern
 
 until game.over?
-  print game.guess_pattern
-  puts
-  puts "--"
-  print game.give_feedback
-  puts
+  game.display_board
+  game.guess_pattern
+  game.give_feedback
 end
 
-puts
 puts "GAME OVER!"
 puts "Winner: #{game.winner}"
