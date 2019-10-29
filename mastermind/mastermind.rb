@@ -35,21 +35,22 @@ class MasterMind
   end
 
   def display_board
-    system("clear")
+    lwidth = 94
 
-    lwidth = 78
+    system("clear")
+    puts
     puts "#{'MASTERMIND GAME'.center(lwidth)}"
     puts
 
-    puts "#{'GUESSES'.center(29)}"\
-          "#{'FEEDBACKS'.rjust(39)}"
-    puts
+    print "#{'GUESSES'.center(37)}"
+    print "                    "
+    puts "#{'FEEDBACKS'.center(37)}"
 
     11.downto(0) do |index|
-      4.times { |color| print "|#{guesses[index][color].center(6)}" }
+      4.times { |color| print "|#{guesses[index][color].center(8)}" }
       print "|"
       print "                    "
-      4.times { |color| print "|#{feedbacks[index][color].center(6)}" }
+      4.times { |color| print "|#{feedbacks[index][color].center(8)}" }
       puts "|"
     end
   end
@@ -58,23 +59,18 @@ class MasterMind
     self.guess = []
     input_guess = ""
 
-    puts
-    display_colors
-
     loop do
+      display_colors
       print "Enter your guess (input numbers corresponding to your guess): "
       input_guess = gets.chomp.split('') # string of indexes
 
-      if input_guess.length != 4
-        puts "Error! Guess 4 colors only."
-        puts "Try again!"
-        next
-      else
+      if valid?(input_guess)
         break
+      else
+        puts "Try again!"
       end
     end
 
-    # TODO: accept integers between 0 and 6 only
     input_guess.each do |char|
       index = char.to_i
       guess.push(MasterMind::CODE_PEGS_COLORS[index])
@@ -124,7 +120,7 @@ class MasterMind
   def over?
     if pattern_cracked?
       @winner = MasterMind::CODEBREAKER
-      puts "PATTERN: #{pattern}"
+      display_board # one last time to show the guess is correct
       true
     elsif attempts == 0
       @winner = MasterMind::CODEMAKER
@@ -151,22 +147,44 @@ class MasterMind
   end
 
   def display_colors
+    puts
+
     MasterMind::CODE_PEGS_COLORS.each_with_index do |color, index|
      print "| #{index} - #{color} "
     end
     puts "|"
+  end
+
+  def valid?(input)
+    indexes = ["0", "1", "2", "3", "4", "5", "6"]
+
+    if input.length != 4
+      puts "Enter only 4 numbers corresponding to your guess pattern."
+      return false
+    end
+
+    input.each do |i|
+      if indexes.index(i).nil?
+        puts "Invalid input (#{i}). Enter four numbers only from 0 to 6."
+        return false
+      end
+    end
+
+    true
   end
 end
 
 
 # sample usage
 game = MasterMind.new("Lou", MasterMind::CODEBREAKER, MasterMind::MAX_ATTEMPTS)
-puts game.make_pattern
+game.make_pattern
 
-until game.over?
+loop do
   game.display_board
   game.guess_pattern
   game.give_feedback
+
+  break if game.over?
 end
 
 puts "GAME OVER!"
