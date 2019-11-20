@@ -10,7 +10,6 @@ class CodeMaker
     @feedback_method = nil
     @pattern = nil
     @feedback = nil
-    @f_count = 0
 
     if player_type == COMPUTER
       @pattern_method = -> {computer_pattern}
@@ -42,7 +41,10 @@ class CodeMaker
   end
 
   def human_pattern
-    @pattern = get_input(PATTERN)
+    input = get_input(PATTERN)
+    @pattern = convert_to_colors(input, PATTERN)
+
+    pattern
   end
 
   def computer_feedback(guess)

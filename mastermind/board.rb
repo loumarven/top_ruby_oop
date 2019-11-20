@@ -37,6 +37,8 @@ class Board
   end
 
   def put(code, player_role)
+    puts
+
     if player_role == CODEBREAKER
       @guesses[@guess_index] = code
       @guess_index += 1

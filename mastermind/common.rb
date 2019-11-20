@@ -4,7 +4,7 @@ module Common
   HUMAN = 0
   COMPUTER = 1
   CODE_PEGS_COLORS = ["Blank", "Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
-  FEEDBACK_COLORS = ["-", "Black", "White"]
+  FEEDBACK_COLORS = ["Blank", "Black", "White"]
   MAX_ATTEMPTS = 12
   PATTERN = "pattern"
   GUESS = "guess"
